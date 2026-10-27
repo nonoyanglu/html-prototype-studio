@@ -1,0 +1,2284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PPT.CAB — Prototype (Preview / Edit / Annotate)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,560;1,9..144,700&family=Inter:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #16161a;
+    --muted: #6d727c;
+    --line: #ececef;
+    --purple: #6d4dff;
+    --purple-2: #16161a;
+    --bg: #fff;
+    --footer: #16141e;
+    --shadow: 0 18px 50px rgba(90, 70, 160, 0.12);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: Inter, "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    color: var(--ink);
+    background: #fff;
+    letter-spacing: 0;
+  }
+  a { color: inherit; text-decoration: none; }
+  button, input, textarea { font-family: inherit; }
+  .wrap { width: min(1180px, calc(100% - 48px)); margin: 0 auto; }
+  header {
+    position: sticky; top: 0; z-index: 40;
+    height: 68px;
+    background: rgba(255,255,255,.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid transparent;
+  }
+  .nav {
+    height: 76px;
+    display: flex; align-items: center; gap: 36px;
+  }
+  .logo { display: flex; align-items: center; gap: 2px; font-weight: 800; font-size: 22px; letter-spacing: 0; }
+  .logo b { font-weight: 800; }
+  .logo span { font-weight: 600; font-size: 15px; margin-left: 1px; }
+  .menu { display: flex; align-items: center; gap: 28px; margin-left: 28px; flex: 1; }
+  .menu > a, .drop > button.trigger {
+    background: none; border: 0; padding: 8px 0; font-size: 14px; color: #2a2a30; cursor: pointer;
+  }
+  .caret { font-size: 10px; margin-left: 4px; color: #8b8e97; }
+  .right { margin-left: auto; display: flex; align-items: center; gap: 18px; font-size: 14px; }
+  .signin { color: #2a2a30; }
+  .signup {
+    background: var(--purple-2); color: #fff; border: 0; border-radius: 8px;
+    padding: 8px 14px; font-weight: 600; cursor: pointer; font-size: 14px;
+  }
+  .drop { position: relative; }
+  .panel {
+    display: none; position: absolute; top: 34px; left: 0; min-width: 180px;
+    background: #fff; border: 1px solid #eee; border-radius: 12px; box-shadow: var(--shadow); padding: 8px;
+  }
+  .drop.open .panel { display: block; }
+  .panel a, .panel button {
+    display: block; width: 100%; text-align: left; background: none; border: 0;
+    padding: 9px 10px; border-radius: 8px; font-size: 13px; color: #333; cursor: pointer;
+  }
+  .panel a:hover, .panel button:hover { background: #f6f5ff; }
+  .burger { display: none; margin-left: auto; border: 0; background: none; font-size: 22px; cursor: pointer; }
+
+  .hero {
+    position: relative;
+    text-align: center;
+    padding: 72px 0 8px;
+    background:
+      linear-gradient(180deg, #fff 0%, #f6f3ec 42%, #efe8dc 100%);
+    overflow: hidden;
+  }
+  .hero::before {
+    content: "";
+    position: absolute; left: 0; right: 0; bottom: 0; height: 220px;
+    background: linear-gradient(180deg, transparent, rgba(28, 27, 25, .04));
+    pointer-events: none;
+  }
+  h1 {
+    position: relative;
+    margin: 0 auto;
+    max-width: 860px;
+    font-size: 58px;
+    line-height: 1.12;
+    font-weight: 800;
+    letter-spacing: 0;
+  }
+  h1 em {
+    font-family: Fraunces, Georgia, serif;
+    font-style: italic;
+    font-weight: 560;
+    color: #16161a;
+    text-decoration: underline;
+    text-decoration-color: #b8893d;
+    text-decoration-thickness: 3px;
+    text-underline-offset: 7px;
+  }
+  .sub {
+    position: relative;
+    max-width: 640px;
+    margin: 16px auto 0;
+    color: #5e616a;
+    font-size: 15px;
+    line-height: 1.55;
+  }
+  .lead {
+    position: relative;
+    margin: 12px auto 0;
+    max-width: 920px;
+    font-size: 44px;
+    line-height: 1.45;
+    font-weight: 800;
+    letter-spacing: 0;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    background: #b6f25c;
+    color: #1a1a1a;
+    border-radius: 14px;
+    padding: 6px 16px 8px;
+    margin-right: 14px;
+    vertical-align: 2px;
+  }
+  .badge .mark { font-size: 32px; }
+  .composer {
+    position: relative;
+    width: min(760px, calc(100% - 32px));
+    margin: 36px auto 18px;
+    background: #fff;
+    border: 2px solid #2b2b2b;
+    border-radius: 18px;
+    box-shadow: 0 8px 0 rgba(43,43,43,.04);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 8px 8px 18px;
+    text-align: left;
+  }
+  .composer input {
+    flex: 1;
+    border: 0;
+    outline: none;
+    font-size: 16px;
+    min-width: 0;
+    background: transparent;
+    color: #222;
+    height: 44px;
+  }
+  .composer input::placeholder { color: #b0b3bb; }
+  .go {
+    border: 0;
+    cursor: pointer;
+    background: #16161a;
+    color: #fff;
+    font-weight: 700;
+    font-size: 16px;
+    border-radius: 12px;
+    padding: 0 18px;
+    height: 46px;
+    white-space: nowrap;
+  }
+  .go:hover { background: #000; }
+  .scribble {
+    position: absolute;
+    right: max(20px, calc(50% - 430px));
+    top: 168px;
+    width: 54px;
+    height: 46px;
+    pointer-events: none;
+  }
+
+  .marquee-wrap {
+    position: relative;
+    margin-top: 28px;
+    height: 196px;
+    overflow: hidden;
+  }
+  .marquee-wrap::before, .marquee-wrap::after {
+    content: ""; position: absolute; top: 0; bottom: 0; width: 80px; z-index: 2;
+  }
+  .marquee-wrap::before { left: 0; background: linear-gradient(90deg, #f6f3ec, transparent); }
+  .marquee-wrap::after { right: 0; background: linear-gradient(270deg, #efe8dc, transparent); }
+  .track { display: flex; width: max-content; animation: slide 46s linear infinite; }
+  
+  @keyframes slide { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  .ways { padding: 88px 0 36px; }
+  .ways-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 72px; align-items: center; }
+  .way { padding: 8px 4px 36px; }
+  .way.card {
+    background: #f4f5f7; border-radius: 18px; padding: 26px 26px 22px; display: flex; gap: 18px; align-items: center;
+  }
+  .way h3 { margin: 0 0 12px; font-size: 28px; }
+  .way p { margin: 0; color: #7b808a; font-size: 14.5px; line-height: 1.7; }
+  .gen {
+    flex: none; background: #16161a; color: #fff; border: 0; border-radius: 999px;
+    padding: 10px 18px; font-weight: 600; cursor: pointer; white-space: nowrap;
+  }
+  .illu {
+    background: #f6f3ec;
+    border-radius: 28px;
+    min-height: 380px;
+    margin-top: 12px;
+    position: relative;
+    display: grid; place-items: center;
+    overflow: hidden;
+  }
+  .spark { position: absolute; color: #fff; font-size: 28px; left: 22%; top: 18%; text-shadow: 0 0 0 #fff; }
+  .spark.s2 { left: 30%; top: 28%; font-size: 18px; }
+  .deck { position: relative; width: 78%; height: 210px; }
+  .sheet {
+    position: absolute; inset: 34px 18px auto; height: 150px; border-radius: 22px;
+    background: #c9b8ff;
+  }
+  .sheet.back { left: 0; right: 70px; top: 18px; background: #d9ccff; }
+  .sheet.mid { left: 46px; right: 0; top: 8px; background: #b9a4ff; height: 168px; }
+  .sheet.front {
+    left: 78px; right: 28px; top: 0; height: 176px; background: #8d74f5; border-radius: 26px;
+    padding: 28px 22px;
+  }
+  .bar { height: 14px; border-radius: 8px; background: rgba(255,255,255,.55); margin-bottom: 12px; }
+  .bar.short { width: 46%; height: 46px; background: rgba(255,255,255,.35); float: left; margin-right: 12px; }
+  
+  .stage { position: relative; width: min(460px, 92%); height: 320px; }
+  .ghost {
+    position: absolute; inset: 28px 18px 46px 36px; border-radius: 18px;
+    background: rgba(255,255,255,.45); transform: rotate(-6deg);
+    box-shadow: 0 16px 30px rgba(80,60,140,.08);
+  }
+  .preview {
+    position: absolute; inset: 18px 28px 58px 18px; border-radius: 18px;
+    background: #fbf8f2; color: #1c1b19;
+    box-shadow: 0 24px 50px rgba(60,40,110,.18);
+    padding: 18px 20px 16px; transform: rotate(2.5deg);
+  }
+  .preview-top { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #8a847a; }
+  .preview-top .mark { font-size: 16px; color: #1c1b19; }
+  .preview .eyebrow { margin: 18px 0 0; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: #8a6a32; }
+  .preview h3 { margin: 8px 0 0; font-family: Fraunces, Georgia, serif; font-weight: 560; font-size: 26px; line-height: 1.15; letter-spacing: 0; }
+  .mini { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 16px; }
+  .mini div { background: #fff; border-radius: 10px; padding: 8px 10px; }
+  .mini b { display: block; font-family: Fraunces, Georgia, serif; font-style: italic; font-size: 16px; }
+  .mini span { color: #6d675e; font-size: 12px; }
+  .chart { display: flex; align-items: flex-end; gap: 8px; height: 54px; margin-top: 14px; }
+  .chart i { width: 18px; border-radius: 5px 5px 2px 2px; background: #1c1b19; display: block; }
+  .chart i:last-child { background: #c9a15b; }
+  .float-note {
+    position: absolute; right: 8px; bottom: 8px;
+    background: #fff; color: #3c3a44; border-radius: 999px;
+    padding: 12px 16px; font-size: 14px; font-weight: 600;
+    box-shadow: 0 12px 28px rgba(50,40,90,.16);
+  }
+
+
+  .templates { padding: 72px 0 24px; }
+  .templates h2, .scenes h2, .cta h2 {
+    text-align: center; font-size: 36px; margin: 0 0 36px; font-weight: 800;
+    line-height: 1.25;
+  }
+  .frame {
+    border: 0;
+    overflow: hidden;
+    background: #fff;
+  }
+  .templates .wrap { width: min(1280px, 100%); }
+  .frame img { width: 100%; display: block; }
+
+  .scenes { padding: 96px 0 40px; }
+  .scene-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 22px; }
+  .scene {
+    border-radius: 18px; padding: 26px 26px 22px; min-height: 196px; position: relative;
+  }
+  .scene header { position: static; height: auto; background: none; display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .avatar {
+    width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; font-size: 18px;
+    background: #fff;
+  }
+  .scene h3 { margin: 0; font-size: 18px; }
+  .scene ul { margin: 8px 0 0; padding-left: 18px; color: #4d5560; font-size: 15px; line-height: 1.85; }
+  .qmark { position: absolute; right: 18px; top: 16px; font-size: 34px; color: rgba(80,90,110,.18); font-family: Georgia, serif; }
+  .cream { background: #fbf6ea; }
+  .ice { background: #eef5fb; }
+  .mint { background: #eef8f1; }
+  .blush { background: #fdf1f3; }
+  .lime { background: #eef8e4; }
+  .span2 { grid-column: span 1; }
+
+  .faq {
+    margin-top: 48px;
+    border-top: 1px solid #e4e9fb;
+    padding: 96px 0 56px;
+  }
+  .faq-grid { display: grid; grid-template-columns: 340px 1fr; gap: 64px; align-items: start; }
+  .faq h2 { margin: 0; font-size: 36px; line-height: 1.2; letter-spacing: 0; }
+  .acc { display: flex; flex-direction: column; gap: 16px; }
+  .item { border: 1px solid #ececf2; border-radius: 14px; background: #fff; overflow: hidden; }
+  .item button.q {
+    width: 100%; text-align: left; background: none; border: 0; padding: 16px 18px;
+    font-size: 15px; cursor: pointer; display: flex; justify-content: space-between; gap: 12px; color: #3a3a42;
+  }
+  .chev { color: #9aa0aa; transition: transform .2s; }
+  .item.open .chev { transform: rotate(90deg); }
+  .a { display: none; padding: 0 18px 16px; color: #667; font-size: 14px; line-height: 1.6; }
+  .item.open .a { display: block; }
+
+  .cta {
+    text-align: center;
+    padding: 96px 24px 110px;
+    background: #f6f3ec;
+  }
+  .cta p { color: #333; margin: 8px 0 28px; }
+  .arrow {
+    width: 70px; height: 46px; margin: 0 auto 8px; display: block;
+  }
+  .smart {
+    border: 0; cursor: pointer; color: #fff; background: #111;
+    border-radius: 999px; padding: 8px 8px 8px 22px;
+    display: inline-flex; align-items: center; gap: 14px; font-size: 16px; font-weight: 600;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 10px 24px rgba(0,0,0,.12);
+  }
+  .smart i {
+    width: 36px; height: 36px; border-radius: 50%; background: #fff; color: #111;
+    display: grid; place-items: center; font-style: normal;
+  }
+
+  footer { background: var(--footer); color: #c8c6d0; padding: 64px 0 40px; }
+  .foot-top { display: flex; justify-content: space-between; align-items: center; }
+  .foot-logo { color: #fff; font-weight: 700; font-size: 22px; }
+  .lang {
+    background: transparent; color: #ddd; border: 1px solid #3a3844; border-radius: 8px;
+    padding: 8px 12px; min-width: 120px;
+  }
+  .cols { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; margin-top: 56px; }
+  .cols h4 { margin: 0 0 16px; color: #fff; font-size: 14px; }
+  .cols a { display: block; color: #b7b5c0; font-size: 14px; padding: 8px 0; }
+  .cols a:hover { color: #fff; }
+  .legal {
+    margin-top: 28px; border-top: 1px solid #2c2a34; padding-top: 18px;
+    display: flex; justify-content: space-between; gap: 24px; align-items: flex-end;
+  }
+  .fine { font-size: 12px; line-height: 1.55; color: #9d9aa6; max-width: 760px; }
+  .socials { display: flex; gap: 8px; }
+  .socials a {
+    width: 28px; height: 28px; border-radius: 50%; border: 1px solid #3d3b46; color: #fff;
+    display: grid; place-items: center; font-size: 12px;
+  }
+  .toast {
+    position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px);
+    background: #16141e; color: #fff; padding: 12px 16px; border-radius: 12px;
+    opacity: 0; pointer-events: none; transition: .25s; z-index: 50; font-size: 14px;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .mobile-menu { display: none; }
+
+  @media (max-width: 980px) {
+    h1 { font-size: 30px; }
+    .badge .mark { font-size: 22px; }
+    .scribble { display: none; }
+    .composer { padding-left: 12px; }
+    .go { font-size: 14px; padding: 0 12px; }
+    .menu, .right .signin { display: none; }
+    .burger { display: block; }
+    .mobile-menu.open {
+      display: flex; flex-direction: column; gap: 8px;
+      padding: 8px 20px 16px; background: #fff; border-bottom: 1px solid #eee;
+    }
+    .ways-grid, .faq-grid, .scene-grid, .cols, .legal, .board { grid-template-columns: 1fr; display: grid; }
+    .legal { display: grid; }
+    .scene-grid, .people, .rs-grid { grid-template-columns: 1fr; }
+    .people article:nth-child(even) { padding-left: 0; border-left: 0; }
+    .real-slide h3 { font-size: 28px; }
+    .way.card { flex-direction: column; align-items: flex-start; }
+    .pill { font-size: 15px; }
+    .faq h2 { font-size: 28px; }
+  }
+
+  .mark {
+    font-family: Syne, Inter, sans-serif;
+    font-weight: 800;
+    letter-spacing: -0.05em;
+    font-size: 22px;
+    line-height: 1;
+    color: inherit;
+  }
+  .mark .dot {
+    color: #6d4dff;
+    font-family: Fraunces, Georgia, serif;
+    font-style: italic;
+    font-weight: 700;
+    padding: 0 1px;
+  }
+  .mark .cab {
+    font-family: Fraunces, Georgia, serif;
+    font-style: italic;
+    font-weight: 560;
+    letter-spacing: -0.04em;
+  }
+  .foot-logo .mark { font-size: 28px; color: #fff; }
+  .film, .board { display: flex; gap: 14px; }
+  .board {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(210px, 1fr));
+    gap: 18px;
+    padding: 4px 2px 8px;
+  }
+  .slide {
+    width: 268px; height: 164px; border-radius: 16px; flex: none;
+    padding: 18px 18px; position: relative; overflow: hidden;
+    box-shadow: 0 10px 24px rgba(40, 30, 80, .12);
+    color: #16161a;
+  }
+  .board .slide { width: auto; height: 188px; }
+  .slide .k { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; opacity: .62; }
+  .slide h3 { margin: 12px 0 0; font-size: 20px; line-height: 1.28; font-family: Fraunces, Georgia, serif; font-weight: 560; }
+  .slide .n { position: absolute; right: 12px; bottom: 8px; font-family: Fraunces, serif; font-style: italic; font-size: 28px; opacity: .35; }
+  .s-ink { background: #14141a; color: #f4f1ea; }
+  .s-cream { background: #f6f1e7; }
+  .s-paper { background: #fff; border: 1px solid #ece7df; }
+  .s-teal { background: #123e3a; color: #f3fff8; }
+  .s-sand { background: linear-gradient(160deg, #efe6d6, #f7f3ea); }
+  .s-wine { background: #3c1d2a; color: #fff5ee; }
+  .s-lime { background: #e7f36a; }
+  .bars { display: flex; align-items: flex-end; gap: 6px; height: 54px; margin-top: 16px; }
+  .bars i { display: block; width: 14px; border-radius: 4px 4px 0 0; background: #16161a; }
+  .s-ink .bars i { background: #f4f1ea; }
+  .rule { height: 2px; width: 42px; background: currentColor; margin-top: 18px; opacity: .7; }
+  .frame { border: 1px solid #e6e2f2; border-radius: 20px; padding: 22px; background: #faf9fc; overflow: auto; }
+
+
+  .kinds { position: relative; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin: 14px 0 28px; }
+  .kinds button {
+    border: 1px solid #e4e0d8; background: #fff; color: #3c3a36;
+    border-radius: 999px; padding: 8px 14px; font-size: 13px; cursor: pointer;
+  }
+  .kinds button.on, .kinds button:hover { border-color: #16161a; color: #16161a; }
+  .real-slide {
+    width: min(920px, calc(100% - 32px));
+    margin: 8px auto 0;
+    aspect-ratio: 16 / 9;
+    background: #fbf8f2;
+    border: 1px solid #e7e1d6;
+    border-radius: 18px;
+    box-shadow: 0 24px 60px rgba(40, 32, 20, .08);
+    text-align: left;
+    padding: 36px 40px 28px;
+    display: flex;
+    flex-direction: column;
+  }
+  .rs-top { display: flex; justify-content: space-between; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: #8a8478; }
+  .real-slide h3 { margin: 18px 0 0; font-family: Fraunces, Georgia, serif; font-weight: 560; font-size: 40px; line-height: 1.12; max-width: 16ch; }
+  .rs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-top: auto; }
+  .rs-grid b { display: block; font-size: 14px; margin-bottom: 6px; }
+  .rs-grid p { margin: 0; color: #5e584e; font-size: 14px; line-height: 1.45; }
+  .rs-bars { display: flex; align-items: flex-end; gap: 8px; height: 56px; margin-top: 22px; }
+  .rs-bars i { width: 22px; display: block; background: #1c1b19; border-radius: 4px 4px 0 0; }
+  .rs-bars i:nth-child(1) { height: 38%; }
+  .rs-bars i:nth-child(2) { height: 62%; }
+  .rs-bars i:nth-child(3) { height: 48%; }
+  .rs-bars i:nth-child(4) { height: 86%; background: #b8893d; }
+  .people { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border-top: 1px solid #ece7df; }
+  .people article { padding: 28px 8px 28px 0; border-bottom: 1px solid #ece7df; }
+  .people article:nth-child(odd) { padding-right: 36px; }
+  .people article:nth-child(even) { padding-left: 36px; border-left: 1px solid #ece7df; }
+  .who { display: block; font-size: 13px; color: #8a8478; margin-bottom: 8px; }
+  .people p { margin: 0; font-size: 22px; line-height: 1.35; font-weight: 650; }
+  .people em { font-style: normal; color: #b8893d; padding: 0 6px; }
+  .s-teal, .s-wine, .s-lime { background: #f6f1e7 !important; color: #16161a !important; }
+  .s-teal .bars i, .s-wine .bars i { background: #16161a; }
+
+
+/* —— prototype annotation shell —— */
+html, body { height: 100%; overflow: hidden; }
+body {
+  display: flex; flex-direction: column; min-height: 100%;
+}
+#protoAppShell {
+  display: flex; width: 100%; flex: 1; min-height: 0; height: auto; overflow: hidden; background: #fff;
+}
+#protoMainScroll {
+  flex: 1; min-width: 0; height: auto; overflow-y: auto; overflow-x: hidden;
+  position: relative;
+}
+.has-proto-marker { position: relative; }
+.proto-marker-layer {
+  position: fixed; inset: 0; pointer-events: none; z-index: 9999; overflow: visible;
+}
+.proto-marker-layer.is-modal-active { z-index: 1001; }
+.proto-marker {
+  position: fixed; top: 0; left: 0;
+  min-width: 22px; height: 22px; padding: 0 6px; box-sizing: border-box;
+  border-radius: 999px; background: #F97316; color: #fff;
+  font-size: 11px; font-weight: 700;
+  border: 2px solid #fff; box-shadow: 0 2px 8px rgba(249, 115, 22, 0.4);
+  pointer-events: none; font-variant-numeric: tabular-nums;
+  display: inline-flex; align-items: center; justify-content: center;
+  line-height: 1; white-space: nowrap;
+  transform: translate(-50%, -50%);
+}
+.proto-marker.is-hidden { display: none; }
+.proto-marker.is-proto-flash { animation: protoFlash 1.2s ease 2; }
+@keyframes protoFlash {
+  0%, 100% { box-shadow: 0 2px 8px rgba(249, 115, 22, 0.4); transform: translate(-50%, -50%) scale(1); }
+  50% { box-shadow: 0 0 0 5px rgba(249, 115, 22, 0.28); transform: translate(-50%, -50%) scale(1.08); }
+}
+.proto-annotation-panel {
+  width: 340px; flex-shrink: 0;
+  background: #FAFBFC; border-left: 1px dashed #CBD5E1;
+  display: flex; flex-direction: column; height: auto; align-self: stretch; overflow: hidden;
+  position: relative;
+}
+.proto-annotation-panel__head {
+  flex-shrink: 0; padding: 16px 16px 12px;
+  border-bottom: 1px solid #E2E8F0;
+  background: #fff;
+}
+.proto-annotation-panel__head h2 {
+  font-size: 15px; font-weight: 700; margin: 0 0 6px; font-family: Inter, sans-serif;
+}
+.proto-annotation-panel__head p {
+  font-size: 12px; color: #64748B; margin: 0; line-height: 1.5; font-family: Inter, sans-serif;
+}
+.proto-annotation-panel__step {
+  margin-top: 10px; padding: 4px 10px; border-radius: 999px;
+  display: inline-block; font-size: 11px; font-weight: 600;
+  background: #EFF6FF; color: #2563EB; font-family: Inter, sans-serif;
+}
+.proto-annotation-panel__body {
+  flex: 1; min-height: 0; overflow-y: auto; padding: 8px 0 24px;
+  font-family: Inter, sans-serif;
+}
+.proto-annotation-group {
+  padding: 10px 16px 4px; font-size: 11px; font-weight: 600;
+  color: #64748B;
+}
+.proto-annotation-item {
+  display: flex; gap: 10px; padding: 10px 16px;
+  border-bottom: 1px solid #E2E8F0;
+  cursor: pointer; transition: background 0.15s ease;
+}
+.proto-annotation-item:hover { background: #F8FAFC; }
+.proto-annotation-item.is-current { background: #FFF7ED; }
+.proto-annotation-item.is-dim { opacity: 0.45; }
+.proto-annotation-num {
+  flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+  background: #F97316; color: #fff; font-size: 11px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+.proto-annotation-item.is-current .proto-annotation-num {
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
+}
+.proto-annotation-text { min-width: 0; flex: 1; display: flex; flex-direction: column; }
+.proto-annotation-text strong {
+  display: block; font-size: 13px; margin-bottom: 4px; color: #16161a;
+}
+.proto-annotation-text span {
+  display: block; font-size: 12px; line-height: 1.55; color: #475569;
+}
+@media (max-width: 980px) {
+  #protoAppShell { flex-direction: column; height: auto; overflow: visible; }
+  html, body { height: auto; overflow: auto; display: block; }
+  #protoMainScroll { height: auto; overflow: visible; }
+  .proto-annotation-panel { width: 100%; height: auto; max-height: 50vh; position: relative; }
+}
+
+
+/* === three modes + chrome === */
+#protoProtoBanner {
+  position: relative; flex-shrink: 0; z-index: 60;
+  background: #0B1220; border-bottom: 1px solid #334155;
+  color: #FDBA74; font: 12px/1.4 Inter, "PingFang SC", system-ui, sans-serif;
+  padding: 6px 16px; text-align: center;
+}
+#protoProtoBanner strong { font-weight: 700; color: #FDE68A; }
+#protoModeBar {
+  position: relative; flex-shrink: 0; z-index: 55;
+  display: flex; flex-direction: row; flex-wrap: wrap;
+  align-items: center; justify-content: flex-end; gap: 8px 10px;
+  width: 100%; box-sizing: border-box;
+  padding: 8px 16px;
+  background: #1E293B; border-bottom: 1px solid #0F172A;
+  box-shadow: 0 2px 0 rgba(15,23,42,.35);
+  font-family: Inter, system-ui, "PingFang SC", sans-serif;
+  color: #E2E8F0;
+  max-width: none;
+}
+#protoModeSeg {
+  display: inline-flex; background: #0F172A; border: 1px solid #334155;
+  border-radius: 10px; padding: 3px;
+}
+#protoModeSeg button {
+  border: 0; background: transparent; color: #94A3B8;
+  padding: 8px 14px; font-size: 13px; font-weight: 600; border-radius: 8px;
+  cursor: pointer; line-height: 1; white-space: nowrap;
+}
+#protoModeSeg button:hover { background: #334155; color: #F8FAFC; }
+#protoModeSeg button.is-active { background: #F8FAFC; color: #0F172A; }
+#protoEditTools {
+  display: none; flex-direction: row; flex-wrap: wrap;
+  align-items: center; gap: 8px;
+  background: transparent; border: 0; border-radius: 0;
+  padding: 0; box-shadow: none; width: auto; max-width: none;
+  box-sizing: border-box;
+}
+body.proto-mode-edit #protoEditTools { display: inline-flex; }
+#protoEditTools .hint {
+  font-size: 12px; color: #94A3B8; padding: 0 4px 0 0; line-height: 1.4;
+  white-space: nowrap;
+}
+#protoEditTools #protoResetBtn { width: auto; }
+#protoEditTools button, #protoVersionChip button {
+  border: 1px solid #475569; background: #334155; color: #F1F5F9;
+  border-radius: 8px; padding: 7px 12px; font-size: 13px; cursor: pointer;
+}
+#protoEditTools button:hover, #protoVersionChip button:hover { background: #475569; color: #fff; }
+#protoVersionChip {
+  display: inline-flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px;
+  background: #0F172A; border: 1px solid #334155; border-radius: 10px;
+  padding: 6px 10px; box-shadow: none;
+  font-size: 12px; color: #CBD5E1; max-width: none; box-sizing: border-box;
+}
+#protoVersionChip .status-dot {
+  width: 8px; height: 8px; border-radius: 50%; background: #64748B;
+}
+#protoVersionChip.is-dirty .status-dot { background: #FB923C; }
+#protoVersionChip.is-dirty { border-color: #F97316; color: #FDBA74; }
+body.proto-mode-preview #protoAnnotationPanel { display: none !important; }
+body.proto-mode-preview #protoMarkerLayer,
+body.proto-mode-preview .proto-marker { display: none !important; }
+body.proto-mode-preview #protoAppShell { display: block; flex: 1; height: auto; overflow: visible; }
+body.proto-mode-preview #protoMainScroll { height: auto; overflow: visible; }
+body.proto-mode-preview { height: auto; overflow: auto; display: block; }
+body:not(.proto-mode-edit) [contenteditable="true"].mhe-editing {
+  outline: none !important; background: transparent !important;
+}
+[contenteditable="true"].mhe-editing {
+  outline: 2px dashed #2b6cb0; outline-offset: 2px; border-radius: 2px;
+}
+[contenteditable="true"].mhe-editing:focus {
+  outline-style: solid; background: rgba(43,108,176,.06);
+}
+.proto-annotation-text strong[contenteditable="true"],
+.proto-annotation-text span[contenteditable="true"] {
+  outline: 1px dashed #F97316; outline-offset: 1px; border-radius: 2px; display: block;
+}
+.proto-annotation-text strong[contenteditable="true"]:focus,
+.proto-annotation-text span[contenteditable="true"]:focus {
+  outline-style: solid; background: #FFF7ED;
+}
+.proto-anno-actions { display: none !important; } /* Global add button moved to top #protoEditTools */
+#protoEditTools button.proto-add-anno-primary {
+  border: 1px solid #F97316; background: #F97316; color: #fff;
+  font-weight: 700; box-shadow: 0 4px 14px rgba(249,115,22,.35);
+}
+#protoEditTools button.proto-add-anno-primary:hover { background: #EA580C; border-color: #EA580C; }
+#protoAddAnnoFab {
+  display: none; position: fixed; right: 28px; bottom: 24px; z-index: 2147483010;
+  border: 0; background: #F97316; color: #fff; border-radius: 999px;
+  padding: 14px 22px; font-size: 15px; font-weight: 700; cursor: pointer;
+  box-shadow: 0 8px 24px rgba(249,115,22,.45);
+  font-family: Inter, "PingFang SC", system-ui, sans-serif;
+  align-items: center; gap: 6px;
+}
+/* Add button in top toolbar; FAB only when panel collapsed on narrow screens */
+#protoAddAnnoFab:hover { background: #EA580C; }
+@media (max-width: 980px) {
+  body.proto-mode-edit.proto-panel-collapsed #protoAddAnnoFab {
+    display: inline-flex; right: 16px; bottom: 72px;
+  }
+}
+body.proto-placing { cursor: crosshair !important; }
+body.proto-placing #protoMainScroll, body.proto-placing #protoMainScroll * { cursor: crosshair !important; }
+body.proto-placing #protoAddAnnoFab,
+body.proto-placing #protoModeBar,
+body.proto-placing #protoModeBar *,
+body.proto-placing #protoAnnotationPanel,
+body.proto-placing #protoAnnotationPanel *,
+body.proto-placing #protoPanelCollapse,
+body.proto-placing #protoAddAnnoDialog,
+body.proto-placing #protoAddAnnoDialog * { cursor: default !important; }
+#protoPlaceGhost {
+  display: none; position: fixed; z-index: 2147483500; pointer-events: none;
+  min-width: 22px; height: 22px; padding: 0 6px; box-sizing: border-box;
+  border-radius: 999px; background: rgba(249, 115, 22, 0.55); color: #fff;
+  font-size: 14px; font-weight: 700; border: 2px solid #fff;
+  box-shadow: 0 2px 8px rgba(249, 115, 22, 0.35);
+  align-items: center; justify-content: center; line-height: 1;
+  transform: translate(-50%, -50%);
+}
+body.proto-placing #protoPlaceGhost { display: inline-flex; }
+.proto-marker.is-resolved {
+  background: #94A3B8; box-shadow: 0 2px 8px rgba(100, 116, 139, 0.35);
+  opacity: 0.75;
+}
+.proto-annotation-item.is-resolved { opacity: 0.72; background: #F8FAFC; }
+.proto-annotation-item.is-resolved .proto-annotation-num { background: #94A3B8; }
+.proto-annotation-item.is-resolved .proto-annotation-text strong,
+.proto-annotation-item.is-resolved .proto-annotation-text span {
+  color: #94A3B8; text-decoration: line-through;
+}
+.proto-annotation-item.is-resolved .proto-annotation-text span { text-decoration: line-through; }
+.proto-anno-status-note { margin-top: 6px; font-size: 11px; color: #94A3B8; }
+.proto-anno-row-actions {
+  display: none; gap: 6px; margin-top: 10px; padding-top: 10px;
+  border-top: 1px solid #E2E8F0; flex-wrap: wrap; align-items: center;
+  width: 100%; box-sizing: border-box;
+}
+body.proto-mode-edit .proto-anno-row-actions { display: flex; }
+.proto-anno-row-actions button {
+  border: 1px solid #E2E8F0; background: #fff; color: #475569;
+  border-radius: 6px; padding: 6px 10px; font-size: 12px; font-weight: 600;
+  cursor: pointer; line-height: 1.2; flex: 1 1 auto; min-width: 64px;
+  text-align: center;
+}
+.proto-anno-row-actions button:hover { background: #F1F5F9; }
+.proto-anno-row-actions button.proto-anno-locate {
+  border-color: #FDBA74; color: #C2410C; background: #FFF7ED;
+}
+.proto-anno-row-actions button.proto-anno-resolve {
+  border-color: #86EFAC; color: #166534; background: #F0FDF4;
+}
+.proto-anno-row-actions button.proto-anno-reopen {
+  border-color: #FDBA74; color: #9A3412; background: #FFF7ED;
+}
+.proto-anno-row-actions button.proto-anno-del-inline {
+  border-color: #FECACA; color: #B91C1C; background: #FEF2F2;
+}
+.proto-anno-offset-row {
+  display: flex; gap: 6px; align-items: center; margin-top: 4px; flex-wrap: wrap;
+}
+.proto-anno-offset-row input {
+  width: 64px; margin-top: 0; font-size: 11px; padding: 4px 6px;
+  border: 1px solid #E2E8F0; border-radius: 6px; box-sizing: border-box;
+}
+#protoAddPlaceHint {
+  display: none; margin: 0 0 10px; padding: 8px 10px; border-radius: 8px;
+  background: #FFF7ED; border: 1px solid #FDBA74; color: #9A3412;
+  font-size: 12px; line-height: 1.45;
+}
+#protoAddPlaceHint.is-show { display: block; }
+#protoAddPlaceHint code { font-size: 11px; word-break: break-all; }
+.proto-annotation-item { position: relative; }
+.proto-anno-del {
+  display: none !important; /* Delete in action row so it does not cover the title */
+}
+.proto-anno-meta-toggle {
+  display: none; margin-top: 8px; padding: 0; border: 0; background: transparent;
+  color: #64748B; font-size: 11px; font-weight: 600; cursor: pointer;
+  font-family: inherit; line-height: 1.4;
+}
+body.proto-mode-edit .proto-anno-meta-toggle { display: inline-block; }
+.proto-anno-meta-toggle:hover { color: #C2410C; }
+.proto-anno-meta {
+  display: none; margin-top: 6px; font-size: 11px; color: #94A3B8;
+}
+/* Collapsed by default; shown only when expanded */
+body.proto-mode-edit .proto-anno-meta.is-open { display: block; }
+.proto-anno-meta input {
+  width: 100%; margin-top: 4px; font-size: 11px; padding: 4px 6px;
+  border: 1px solid #E2E8F0; border-radius: 6px; box-sizing: border-box;
+}
+.proto-annotation-text { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+#protoPanelCollapse {
+  display: none; position: fixed; right: 12px; bottom: 16px; z-index: 2147483000;
+  border: 1px solid #E2E8F0; background: #fff; color: #334155;
+  border-radius: 999px; padding: 10px 14px; font-size: 13px; font-weight: 600;
+  box-shadow: 0 4px 18px rgba(15,23,42,.12); cursor: pointer;
+  font-family: Inter, "PingFang SC", system-ui, sans-serif;
+}
+body.proto-panel-collapsed #protoAnnotationPanel { display: none !important; }
+body.proto-panel-collapsed.proto-mode-annotate #protoMarkerLayer,
+body.proto-panel-collapsed.proto-mode-edit #protoMarkerLayer { display: none !important; }
+#protoModeToast {
+  position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%);
+  background: #222; color: #fff; padding: 8px 14px; border-radius: 8px;
+  font: 13px Inter, system-ui, sans-serif; opacity: 0; transition: opacity .2s;
+  z-index: 2147483647; pointer-events: none;
+}
+#protoModeToast.is-show { opacity: .95; }
+#protoAddAnnoDialog {
+  display: none; position: fixed; inset: 0; z-index: 2147483600;
+  background: rgba(15,23,42,.35); align-items: center; justify-content: center;
+}
+#protoAddAnnoDialog.is-open { display: flex; }
+#protoAddAnnoDialog .box {
+  width: min(420px, calc(100% - 32px)); background: #fff; border-radius: 12px;
+  padding: 16px; box-shadow: 0 20px 50px rgba(15,23,42,.25);
+  font-family: Inter, "PingFang SC", system-ui, sans-serif;
+}
+#protoAddAnnoDialog h3 { margin: 0 0 12px; font-size: 15px; }
+#protoAddAnnoDialog label { display: block; font-size: 12px; color: #64748B; margin: 8px 0 4px; }
+#protoAddAnnoDialog input, #protoAddAnnoDialog textarea, #protoAddAnnoDialog select {
+  width: 100%; box-sizing: border-box; border: 1px solid #E2E8F0; border-radius: 8px;
+  padding: 8px 10px; font-size: 13px; font-family: inherit;
+}
+#protoAddAnnoDialog textarea { min-height: 72px; resize: vertical; }
+#protoAddAnnoDialog .row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
+#protoAddAnnoDialog .row button {
+  border: 1px solid #D0D5DD; background: #fff; border-radius: 8px;
+  padding: 8px 14px; font-size: 13px; cursor: pointer;
+}
+#protoAddAnnoDialog .row button.primary { background: #16161a; color: #fff; border-color: #16161a; }
+@media print {
+  #protoModeBar, #protoModeToast, #protoMarkerLayer, .proto-annotation-panel,
+  #protoProtoBanner, #protoPanelCollapse, #protoAddAnnoFab, #protoAddAnnoDialog, #protoPlaceGhost { display: none !important; }
+}
+@media (max-width: 980px) {
+  #protoModeBar {
+    position: relative; top: auto; bottom: auto; right: auto; left: auto;
+    align-items: stretch; justify-content: stretch; flex-direction: column;
+  }
+  #protoModeSeg { width: 100%; }
+  #protoModeSeg button { flex: 1; padding: 10px 8px; font-size: 12px; }
+  #protoVersionChip, #protoEditTools { width: 100%; justify-content: flex-start; }
+  #protoEditTools .hint { white-space: normal; }
+  body:not(.proto-mode-preview) #protoPanelCollapse { display: inline-flex; }
+  body.proto-panel-collapsed #protoPanelCollapse { bottom: 16px; }
+}
+</style>
+</head>
+<body>
+
+<div id="protoProtoBanner"><strong>This file is a product prototype</strong> · Generate / download / payment are not wired · for review and copy tweaks only</div>
+<div id="protoModeBar" aria-label="Prototype mode switcher">
+  <div id="protoModeSeg" role="tablist">
+    <button type="button" data-mode="preview" role="tab">Preview</button>
+    <button type="button" data-mode="edit" role="tab">Edit</button>
+    <button type="button" data-mode="annotate" role="tab">Annotate</button>
+  </div>
+  <div id="protoVersionChip" title="Local edit status">
+    <span class="status-dot" aria-hidden="true"></span>
+    <span id="protoVersionLabel">Original</span>
+    <button type="button" id="protoExportBtn" title="Export for current mode">Export</button>
+    <button type="button" id="protoClearStorageBtn" title="Clear local cache">Clear cache</button>
+  </div>
+  <div id="protoEditTools">
+    <span class="hint">Click the page or right panel to edit · auto-saves</span>
+    <button type="button" id="protoAddAnnoBtn" class="proto-add-anno-primary" title="Place a pin on the page, then write the note">+ Add annotation</button>
+    <button type="button" id="protoResetBtn">Reset copy &amp; notes</button>
+  </div>
+</div>
+<button type="button" id="protoAddAnnoFab" title="Add annotation (when panel is collapsed on narrow screens)">+ Add annotation</button>
+<button type="button" id="protoPanelCollapse" aria-expanded="true">Hide notes</button>
+<div id="protoModeToast" aria-live="polite"></div>
+<span id="protoPlaceGhost" aria-hidden="true">＋</span>
+<div id="protoAddAnnoDialog" aria-hidden="true">
+  <div class="box" role="dialog" aria-labelledby="protoAddAnnoTitle">
+    <h3 id="protoAddAnnoTitle">New annotation</h3>
+    <div id="protoAddPlaceHint" aria-live="polite"></div>
+    <label>Title</label>
+    <input id="protoAddTitle" type="text" placeholder="e.g. Hero primary CTA" />
+    <label>Description</label>
+    <textarea id="protoAddDesc" placeholder="What the user can do / edge cases / demo-only…"></textarea>
+    <label>Anchor (placed, read-only)</label>
+    <input id="protoAddAnchor" type="text" readonly placeholder="Place a pin on the page first" />
+    <label>Group</label>
+    <select id="protoAddGroup"></select>
+    <div class="row">
+      <button type="button" id="protoAddCancel">Cancel</button>
+      <button type="button" class="primary" id="protoAddConfirm">Add</button>
+    </div>
+  </div>
+</div>
+<div id="protoAppShell">
+<div id="protoMainScroll" data-proto-scroll>
+<header>
+  <div class="wrap nav">
+    <a class="logo" href="#top"><span class="mark">PPT<span class="dot">.</span><span class="cab">CAB</span></span></a>
+    <nav class="menu">
+      <div class="drop" data-drop>
+        <button class="trigger">Products <span class="caret">▾</span></button>
+        <div class="panel">
+          <a href="#composer">One-line deck</a>
+          <a href="#ways">Paste an outline</a>
+          <a href="#ways">Import a file</a>
+          <a href="#pricing">PowerPoint and Google Slides</a>
+        </div>
+      </div>
+      <a href="#pricing">Pricing</a>
+      <div class="drop" data-drop>
+        <button class="trigger">Templates <span class="caret">▾</span></button>
+        <div class="panel">
+          <a href="#templates">Consulting</a>
+          <a href="#templates">Sales deck</a>
+          <a href="#templates">Startup pitch</a>
+          <a href="#templates">Minimal tech</a>
+        </div>
+      </div>
+      <a href="#scenes">Use Cases</a>
+      <a href="#faq">Affiliates</a>
+      <a href="#pricing">Integrations</a>
+    </nav>
+    <div class="right">
+      <a class="signup" href="#composer">Try it NOW</a>
+    </div>
+    <button class="burger" id="burger" aria-label="Menu">☰</button>
+  </div>
+  <div class="mobile-menu" id="mobile">
+    <a href="#composer">Products</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#templates">Templates</a>
+    <a href="#scenes">Use Cases</a>
+    <a href="#faq">FAQs</a>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap">
+      <h1 class="lead">From One Line to<br><em>Presentation-Ready</em> Decks in Seconds.</h1>
+      <p class="sub">Need a deck fast? Call a Cab.</p>
+      <form class="composer" id="composer">
+        <input id="prompt" type="text" value="Series A pitch for a climate analytics startup" />
+        <button class="go" id="go" type="submit">Try for free</button>
+      </form>
+      <div class="kinds" id="kinds">
+        <button type="button" data-prompt="Series A pitch for a climate analytics startup">Pitch</button>
+        <button type="button" data-prompt="Client readout from last quarter's discovery notes">Client readout</button>
+        <button type="button" data-prompt="Board update with the three numbers that changed">Board update</button>
+      </div>
+      <article class="real-slide" data-anno="slide-preview" aria-label="A finished slide">
+        <div class="rs-top"><span>Series A</span><span>01</span></div>
+        <h3>The climate analytics round, on one page.</h3>
+        <div class="rs-grid">
+          <div><b>The problem</b><p>Buyers still assemble risk from five tools.</p></div>
+          <div><b>The wedge</b><p>One model, sold into existing underwriting teams.</p></div>
+          <div><b>The ask</b><p>$8M to reach the next ten carriers.</p></div>
+        </div>
+        <div class="rs-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="ways" id="ways">
+    <div class="wrap ways-grid">
+      <div>
+        <div class="way card" data-anno="way-topic">
+          <div>
+            <h3>Start with one line</h3>
+            <p>Type the meeting, the audience, and the ask. PPT.CAB builds the argument, the slides, and the layout so you are not left redesigning a draft.</p>
+          </div>
+          <button class="gen" id="genTopic">Generate ›</button>
+        </div>
+        <div class="way" data-anno="way-paste">
+          <h3>Paste notes or an outline</h3>
+          <p>Drop in rough notes, a memo, or a bullet outline. The story gets tightened into a deck a client or partner can sit through.</p>
+        </div>
+        <div class="way" data-anno="way-file">
+          <h3>Bring a file</h3>
+          <p>Word, PDF, or an old PowerPoint. PPT.CAB pulls out what matters and rebuilds it as an editable .pptx or a Google Slides import.</p>
+        </div>
+      </div>
+      <div class="illu" aria-hidden="true">
+        <div class="stage">
+          <div class="ghost"></div>
+          <article class="preview">
+            <div class="preview-top"><span class="mark">PPT<span class="dot">.</span><span class="cab">CAB</span></span><span>01 / 12</span></div>
+            <p class="eyebrow">The recommendation</p>
+            <h3>Start with the decision, not the background.</h3>
+            <div class="mini">
+              <div><b>01</b><span>The ask</span></div>
+              <div><b>02</b><span>The proof</span></div>
+              <div><b>03</b><span>The date</span></div>
+            </div>
+            <div class="chart"><i style="height:46%"></i><i style="height:72%"></i><i style="height:58%"></i><i style="height:90%"></i></div>
+          </article>
+          <div class="float-note">One line. Then the deck.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="templates" id="templates">
+    <div class="wrap">
+      <h2>Looks like the meeting, not a blog post</h2>
+      <div class="frame">
+<div class="board">
+        <article class="slide s-paper"><div class="k">Consulting</div><h3>Recommendation up front.</h3><span class="n">A</span></article>
+        <article class="slide s-ink"><div class="k">Sales</div><h3>Why this quarter, not next.</h3></article>
+        <article class="slide s-cream"><div class="k">Pitch</div><h3>Problem, wedge, proof.</h3><div class="bars"><i style="height:30%"></i><i style="height:70%"></i><i style="height:48%"></i><i style="height:90%"></i></div></article>
+        <article class="slide s-teal"><div class="k">Board</div><h3>The number that matters.</h3><span class="n">12</span></article>
+        <article class="slide s-lime"><div class="k">Workshop</div><h3>Choices, not a tour.</h3></article>
+        <article class="slide s-wine"><div class="k">Client</div><h3>What we will not do.</h3></article>
+        <article class="slide s-sand"><div class="k">Story</div><h3>A narrative a partner can repeat.</h3></article>
+        <article class="slide s-paper"><div class="k">Appendix</div><h3>Backup, kept out of the room.</h3></article>
+</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="scenes" id="scenes">
+    <div class="wrap">
+      <h2>Built for the decks people actually send</h2>
+      <div class="people" data-anno="scenes-people">
+        <article><span class="who">Sam · Consultant</span><p>Research and notes <em>→</em> Client proposal</p></article>
+        <article><span class="who">Alex · Sales</span><p>Discovery notes <em>→</em> A proposal the buyer can forward</p></article>
+        <article><span class="who">Jordan · Founder</span><p>Business updates <em>→</em> Investor update</p></article>
+        <article><span class="who">Maya · Product</span><p>Customer interviews <em>→</em> Product review</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="faq" id="faq">
+    <div class="wrap faq-grid">
+      <h2>Questions before you call a Cab</h2>
+      <div class="acc" id="acc">
+        <div class="item">
+          <button class="q">What is PPT.CAB? <span class="chev">›</span></button>
+          <div class="a">PPT.CAB makes a finished deck from one sentence. The point is presentation-ready slides for consulting, sales, and pitches, not a rough draft you still have to reformat.</div>
+        </div>
+        <div class="item">
+          <button class="q">Do I have to sign up before I try it? <span class="chev">›</span></button>
+          <div class="a">No. Start on the homepage. You see the opening of the deck first, then sign in with Google or Microsoft to keep going.</div>
+        </div>
+        <div class="item">
+          <button class="q">What is free, and what is Pro? <span class="chev">›</span></button>
+          <div class="a">Free includes a few generations each month, or a preview of the first pages. Online presenting stays available. Exporting an editable PPTX or PDF is part of Pro.</div>
+        </div>
+        <div class="item">
+          <button class="q">How much does Pro cost? <span class="chev">›</span></button>
+          <div class="a">$15 a month, or $120 a year. There is a 7-day money-back guarantee. Cards, Apple Pay, and Google Pay are supported. Klarna is available in Europe.</div>
+        </div>
+        <div class="item">
+          <button class="q">Will this work in PowerPoint and Google Slides? <span class="chev">›</span></button>
+          <div class="a">Yes. Export a fully editable .pptx, or send the deck to Google Drive and open it in Google Slides. That handoff is the point, not a locked preview.</div>
+        </div>
+        <div class="item">
+          <button class="q">What happens to what I type? <span class="chev">›</span></button>
+          <div class="a">PPT.CAB is built for GDPR. What you paste is not used to train public models. Privacy terms are spelled out before you put a client deck in.</div>
+        </div>
+        <div class="item">
+          <button class="q">Which deck styles are included? <span class="chev">›</span></button>
+          <div class="a">High contrast, lots of whitespace, and charts that carry the point. Templates cover consulting layouts, a minimal tech look, and a startup pitch structure.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta" id="pricing">
+    <h2>Need a deck fast? Call a Cab.</h2>
+    <p>One line in. A presentation-ready deck out. Free to preview. Pro is $15 a month or $120 a year, with a 7-day money-back guarantee.</p>
+    <svg class="arrow" viewBox="0 0 80 50" fill="none" aria-hidden="true">
+      <path d="M18 6 C28 6 30 28 48 34" stroke="#222" stroke-width="2.4" fill="none"/>
+      <path d="M40 28 L50 36 L38 40" stroke="#222" stroke-width="2.4" fill="none"/>
+    </svg>
+    <button class="smart" id="smart">Generate my deck <i>↗</i></button>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-top">
+      <div class="foot-logo"><span class="mark">PPT<span class="dot">.</span><span class="cab">CAB</span></span></div>
+    </div>
+    <div class="cols">
+      <div>
+        <h4>Features</h4>
+        <a href="#ways">One-line decks</a>
+        <a href="#ways">Outline to slides</a>
+        <a href="#ways">File to slides</a>
+        <a href="#templates">Consulting layouts</a>
+        <a href="#templates">Minimal tech</a>
+        <a href="#templates">Pitch decks</a>
+      </div>
+      <div>
+        <h4>Free Tools</h4>
+        <a href="#ways">PDF to deck</a>
+        <a href="#ways">Word to deck</a>
+        <a href="#pricing">Export PPTX</a>
+        <a href="#pricing">Export PDF</a>
+        <a href="#pricing">Google Slides</a>
+        <a href="#pricing">Google Drive</a>
+        <a href="#scenes">Sales decks</a>
+        <a href="#templates">More styles</a>
+      </div>
+      <div>
+        <h4>Resources</h4>
+        <a href="#pricing">Pricing</a>
+        <a href="#templates">Templates</a>
+        <a href="#faq">Help center</a>
+        <a href="#faq">Blog</a>
+        <a href="#faq">New Features</a>
+        <a href="#faq">Affiliates</a>
+        <a href="#faq">Contact</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="#faq">About PPT.CAB</a>
+        <a href="#faq">Privacy</a>
+        <a href="#faq">Terms</a>
+        <a href="#faq">GDPR</a>
+        <a href="#faq">Data use</a>
+        <a href="#faq">Affiliates</a>
+        <a href="#pricing">Refunds</a>
+      </div>
+    </div>
+    <div class="legal">
+      <div class="fine" data-anno="footer-gdpr">
+        © 2026 PPT.CAB. All rights reserved.<br><br>
+        One sentence in. A presentation-ready deck out.<br>
+        Inputs are not used to train public models. Built to meet GDPR for teams in the US and Europe.<br>
+        PowerPoint and Google Slides are product names of their respective owners. PPT.CAB is not affiliated with them.
+      </div>
+      <div class="socials">
+        <a href="#faq" aria-label="LinkedIn">in</a>
+        <a href="#faq" aria-label="Instagram">⌾</a>
+        <a href="#faq" aria-label="YouTube">▶</a>
+        <a href="#faq" aria-label="Facebook">f</a>
+        <a href="#faq" aria-label="X">𝕏</a>
+      </div>
+    </div>
+  </div>
+</footer>
+<div class="toast" id="toast"></div>
+<script>
+  const toast = document.getElementById("toast");
+  let timer;
+  function notify(text) {
+    toast.textContent = text;
+    toast.classList.add("show");
+    clearTimeout(timer);
+    timer = setTimeout(() => toast.classList.remove("show"), 2200);
+  }
+  document.querySelectorAll("[data-drop]").forEach((drop) => {
+    drop.querySelector(".trigger").addEventListener("click", (e) => {
+      e.stopPropagation();
+      const open = drop.classList.contains("open");
+      document.querySelectorAll("[data-drop]").forEach((d) => d.classList.remove("open"));
+      if (!open) drop.classList.add("open");
+    });
+  });
+  document.addEventListener("click", () => document.querySelectorAll("[data-drop]").forEach((d) => d.classList.remove("open")));
+  const prompt = document.getElementById("prompt");
+  function generate() {
+    const topic = prompt.value.trim() || "an untitled topic";
+    notify("Shaping an outline for “" + topic + "”. This page is a preview, so no file is created.");
+  }
+  document.getElementById("composer").addEventListener("submit", (e) => {
+    e.preventDefault();
+    generate();
+  });
+  const kinds = document.getElementById("kinds");
+  if (kinds) {
+    kinds.addEventListener("click", (e) => {
+      const btn = e.target.closest("button");
+      if (!btn) return;
+      kinds.querySelectorAll("button").forEach((b) => b.classList.remove("on"));
+      btn.classList.add("on");
+      prompt.value = btn.dataset.prompt;
+      prompt.focus();
+    });
+  }
+  document.getElementById("genTopic").addEventListener("click", () => {
+    document.getElementById("composer").scrollIntoView({ behavior: "smooth" });
+    prompt.focus();
+  });
+  document.getElementById("smart").addEventListener("click", () => {
+    document.getElementById("composer").scrollIntoView({ behavior: "smooth" });
+    generate();
+  });
+  document.getElementById("acc").addEventListener("click", (e) => {
+    const btn = e.target.closest(".q");
+    if (!btn) return;
+    const item = btn.parentElement;
+    const open = item.classList.contains("open");
+    document.querySelectorAll(".item").forEach((el) => el.classList.remove("open"));
+    if (!open) item.classList.add("open");
+  });
+  document.getElementById("burger").addEventListener("click", () => {
+    document.getElementById("mobile").classList.toggle("open");
+  });
+</script>
+</div>
+
+<aside class="proto-annotation-panel" id="protoAnnotationPanel" aria-label="Feature annotations">
+  <div class="proto-annotation-panel__head">
+    <h2>Feature annotations</h2>
+    <p>Orange numbers on the left match this panel — handy for QA / eng review and requirements alignment.</p>
+    <span class="proto-annotation-panel__step" id="protoAnnotationStepHint">Viewing: full Landing page</span>
+  </div>
+  <div class="proto-annotation-panel__body" id="protoAnnotationList"></div>
+</aside>
+</div>
+
+<script>
+(function() {
+  function escapeHtml(str) {
+    return String(str == null ? "" : str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function getCurrentPanelId() {
+    return "global";
+  }
+
+  var PROTO_ANNOTATION_GROUPS = [
+    { key: "global", label: "Global & nav" },
+    { key: "hero", label: "Hero" },
+    { key: "ways", label: "Generation paths" },
+    { key: "templates", label: "Template wall" },
+    { key: "scenes", label: "Use cases" },
+    { key: "faq", label: "FAQ" },
+    { key: "pricing", label: "Pricing & conversion" }
+  ];
+
+  var PROTO_ANNOTATIONS = [
+    {
+      id: 1,
+      group: "global",
+      anchor: "header .logo",
+      pos: "left",
+      title: "Logo / brand entry",
+      desc: "[Interaction] Click returns to page top #top. Accept: brand renders correctly; anchor jumps."
+    },
+    {
+      id: 2,
+      group: "global",
+      anchor: "header .signup",
+      title: "Top CTA \"Try it NOW\"",
+      desc: "[Interaction] Jumps to #composer. This prototype has no sign-in / sign-up page — anchor only."
+    },
+    {
+      id: 3,
+      group: "hero",
+      anchor: ".hero .lead",
+      title: "Hero headline",
+      desc: "[Visual] One-line value prop (From One Line → Presentation-Ready). Final copy is business-owned."
+    },
+    {
+      id: 4,
+      group: "hero",
+      anchor: "#prompt",
+      title: "Topic input",
+      desc: "[Interaction] User enters a deck topic; scene chips rewrite this value. Empty submit uses a default toast preview."
+    },
+    {
+      id: 5,
+      group: "hero",
+      anchor: "#go",
+      title: "\"Try for free\" submit",
+      desc: "[Interaction] Form submit triggers generation preview. Demo-only: bottom toast; no file, download, or payment."
+    },
+    {
+      id: 6,
+      group: "hero",
+      anchor: "#kinds",
+      title: "Scene chips (Pitch, etc.)",
+      desc: "[Interaction] Click fills a preset prompt and focuses the input; active item gets .on. Lowers blank-input friction."
+    },
+    {
+      id: 7,
+      group: "hero",
+      anchor: "[data-anno='slide-preview']",
+      title: "Sample slide preview",
+      desc: "[Visual] Static \"what the result looks like\" mock — not a real generation. Do not treat as acceptance output."
+    },
+    {
+      id: 8,
+      group: "ways",
+      anchor: "[data-anno='way-topic']",
+      title: "Path 1 · topic generation",
+      desc: "[Interaction] \"One line → structured deck\" copy + Generate. Button only scrolls back to the input; no deck output."
+    },
+    {
+      id: 9,
+      group: "ways",
+      anchor: "[data-anno='way-paste']",
+      title: "Path 2 · paste content",
+      desc: "[Interaction] Paste outline / notes / draft copy area. Demo-only text; no paste form or upload."
+    },
+    {
+      id: 10,
+      group: "ways",
+      anchor: "[data-anno='way-file']",
+      title: "Path 3 · file / PPT polish",
+      desc: "[Interaction] Import Word / PDF / old PPT copy area. Demo-only; no upload or layout engine."
+    },
+    {
+      id: 11,
+      group: "templates",
+      anchor: "#templates",
+      title: "Template style wall",
+      desc: "[Visual] Consulting / Sales / Pitch layout mock. Demo-only; clicks do not select or download templates."
+    },
+    {
+      id: 12,
+      group: "scenes",
+      anchor: "[data-anno='scenes-people']",
+      title: "Audience use cases",
+      desc: "[Content] Consultant / sales / founder / product narratives for growth anchors — not separate feature entry points."
+    },
+    {
+      id: 13,
+      group: "faq",
+      anchor: "#acc",
+      title: "FAQ accordion",
+      desc: "[Interaction] Click expands one item; exclusive open. Covers product definition, no-login trial, Free/Pro, export, GDPR."
+    },
+    {
+      id: 14,
+      group: "pricing",
+      anchor: "#pricing",
+      title: "Pricing highlights",
+      desc: "[Content] Free preview + Pro $15/mo or $120/yr + 7-day refund. No real checkout / subscription in this prototype."
+    },
+    {
+      id: 15,
+      group: "pricing",
+      anchor: "#smart",
+      title: "Bottom CTA \"Generate my deck\"",
+      desc: "[Interaction] Scrolls to composer and fires the same toast as Try for free. Demo-only; no download bridge."
+    },
+    {
+      id: 16,
+      group: "global",
+      anchor: "[data-anno='footer-gdpr']",
+      title: "Footer GDPR / disclaimer",
+      desc: "[State] Inputs are not used to train public models; GDPR note; trademark disclaimer. Legal copy needs formal review before launch."
+    }
+  ];
+
+  function getOpenProtoModal() {
+    return document.querySelector(".modal-overlay.open");
+  }
+
+  function isProtoAnchorVisible(el) {
+    if (!el || !el.isConnected) return false;
+    if (el.classList.contains("hidden")) return false;
+    var panel = el.closest(".step-panel");
+    if (panel && !panel.classList.contains("visible")) return false;
+    var overlay = el.closest(".modal-overlay");
+    var openModal = getOpenProtoModal();
+    if (openModal) {
+      if (!overlay || overlay !== openModal) return false;
+    } else if (overlay) {
+      return false;
+    }
+    var style = window.getComputedStyle(el);
+    if (style.display === "none" || style.visibility === "hidden") return false;
+    var rect = el.getBoundingClientRect();
+    return rect.width > 0 && rect.height > 0;
+  }
+
+  var protoMarkerMap = {};
+  var protoLayoutTimer = null;
+
+  function layoutProtoMarkers() {
+    var layer = document.getElementById("protoMarkerLayer");
+    var openModal = getOpenProtoModal();
+    if (layer) layer.classList.toggle("is-modal-active", !!openModal);
+    Object.keys(protoMarkerMap).forEach(function(id) {
+      var entry = protoMarkerMap[id];
+      var el = entry.anchor, marker = entry.marker, item = entry.item;
+      if (!isProtoAnchorVisible(el)) {
+        marker.classList.add("is-hidden");
+        return;
+      }
+      var rect = el.getBoundingClientRect();
+      var x = (item.ox != null && !isNaN(item.ox)) ? rect.left + Number(item.ox) : (item.pos === "left" ? rect.left + 2 : rect.right - 2);
+      var y = (item.oy != null && !isNaN(item.oy)) ? rect.top + Number(item.oy) : rect.top + 2;
+      marker.style.left = x + "px";
+      marker.style.top = y + "px";
+      marker.classList.toggle("is-resolved", item.status === "resolved");
+      marker.classList.remove("is-hidden");
+    });
+  }
+
+  function scheduleProtoMarkerLayout() {
+    if (protoLayoutTimer) cancelAnimationFrame(protoLayoutTimer);
+    protoLayoutTimer = requestAnimationFrame(function() {
+      protoLayoutTimer = null;
+      layoutProtoMarkers();
+    });
+  }
+
+  function mountProtoMarkers() {
+    var layer = document.getElementById("protoMarkerLayer");
+    if (!layer) {
+      layer = document.createElement("div");
+      layer.id = "protoMarkerLayer";
+      layer.className = "proto-marker-layer";
+      layer.setAttribute("aria-hidden", "true");
+      document.body.appendChild(layer);
+    }
+    PROTO_ANNOTATIONS.forEach(function(item) {
+      var el = document.querySelector(item.anchor);
+      if (!el) {
+        console.warn("[proto-anno] missing anchor:", item.anchor, item.id);
+        return;
+      }
+      el.classList.add("has-proto-marker");
+      var marker = document.createElement("span");
+      marker.className = "proto-marker" + (item.status === "resolved" ? " is-resolved" : "");
+      marker.textContent = item.id;
+      marker.setAttribute("data-proto-id", item.id);
+      if (item.status === "resolved") marker.setAttribute("title", "Resolved");
+      layer.appendChild(marker);
+      protoMarkerMap[item.id] = { anchor: el, marker: marker, item: item };
+    });
+    var scrollEl = document.querySelector("[data-proto-scroll]") || document.getElementById("contentScroll");
+    if (scrollEl) scrollEl.addEventListener("scroll", scheduleProtoMarkerLayout, { passive: true });
+    window.addEventListener("scroll", scheduleProtoMarkerLayout, { passive: true });
+    window.addEventListener("resize", scheduleProtoMarkerLayout);
+    scheduleProtoMarkerLayout();
+  }
+
+  function renderProtoAnnotationList() {
+    var container = document.getElementById("protoAnnotationList");
+    if (!container) return;
+    container.innerHTML = "";
+    PROTO_ANNOTATION_GROUPS.forEach(function(group) {
+      var groupItems = PROTO_ANNOTATIONS.filter(function(item) { return item.group === group.key; });
+      if (!groupItems.length) return;
+      var heading = document.createElement("div");
+      heading.className = "proto-annotation-group";
+      heading.textContent = group.label;
+      container.appendChild(heading);
+      groupItems.forEach(function(item) {
+        var row = document.createElement("div");
+        var isResolved = item.status === "resolved";
+        row.className = "proto-annotation-item" + (isResolved ? " is-resolved" : "");
+        row.setAttribute("data-proto-group", item.group);
+        row.setAttribute("data-proto-id", item.id);
+        row.setAttribute("data-anno-status", item.status || "open");
+        var editable = document.body.classList.contains("proto-mode-edit");
+        var oxVal = (item.ox != null && !isNaN(item.ox)) ? Number(item.ox) : "";
+        var oyVal = (item.oy != null && !isNaN(item.oy)) ? Number(item.oy) : "";
+        var resolveLabel = isResolved ? "Reopen" : "Resolved";
+        var resolveCls = isResolved ? "proto-anno-reopen" : "proto-anno-resolve";
+        row.innerHTML =
+          '<span class="proto-annotation-num">' + item.id + "</span>" +
+          '<div class="proto-annotation-text">' +
+          (editable
+            ? '<strong contenteditable="true" data-anno-field="title" data-anno-id="' + item.id + '">' + escapeHtml(item.title) + "</strong>" +
+              '<span contenteditable="true" data-anno-field="desc" data-anno-id="' + item.id + '">' + escapeHtml(item.desc) + "</span>" +
+              '<button type="button" class="proto-anno-meta-toggle" data-anno-meta-toggle="' + item.id + '" aria-expanded="false">Position details ▾</button>' +
+              '<div class="proto-anno-meta" data-anno-meta="' + item.id + '">Anchor <input data-anno-field="anchor" data-anno-id="' + item.id + '" value="' + escapeHtml(item.anchor || "body") + '" />' +
+              '<div class="proto-anno-offset-row">Offset ' +
+              'ox <input data-anno-field="ox" data-anno-id="' + item.id + '" type="number" step="1" value="' + oxVal + '" />' +
+              'oy <input data-anno-field="oy" data-anno-id="' + item.id + '" type="number" step="1" value="' + oyVal + '" />' +
+              "</div></div>" +
+              '<div class="proto-anno-row-actions">' +
+              '<button type="button" class="proto-anno-locate" data-anno-locate="' + item.id + '">Place</button>' +
+              '<button type="button" class="' + resolveCls + '" data-anno-resolve="' + item.id + '">' + resolveLabel + "</button>" +
+              '<button type="button" class="proto-anno-del-inline" data-anno-del="' + item.id + '">Delete</button>' +
+              "</div>"
+            : "<strong>" + escapeHtml(item.title) + "</strong>" +
+              "<span>" + escapeHtml(item.desc) + "</span>" +
+              (isResolved ? '<div class="proto-anno-status-note">Status: Resolved</div>' : "")) +
+          "</div>";
+        row.addEventListener("click", function(ev) {
+          if (ev.target && (ev.target.isContentEditable || ev.target.matches("input,button,.proto-anno-del,.proto-anno-locate,.proto-anno-resolve,.proto-anno-reopen,.proto-anno-del-inline,.proto-anno-meta-toggle"))) return;
+          focusProtoAnnotation(item.id);
+        });
+        var metaToggle = row.querySelector("[data-anno-meta-toggle]");
+        var metaBlock = row.querySelector("[data-anno-meta]");
+        if (metaToggle && metaBlock) {
+          metaToggle.addEventListener("click", function(ev) {
+            ev.stopPropagation();
+            var open = metaBlock.classList.toggle("is-open");
+            metaToggle.setAttribute("aria-expanded", open ? "true" : "false");
+            metaToggle.textContent = open ? "Position details ▴" : "Position details ▾";
+          });
+        }
+        var delBtns = row.querySelectorAll("[data-anno-del]");
+        Array.prototype.forEach.call(delBtns, function(delBtn) {
+          delBtn.addEventListener("click", function(ev) {
+            ev.stopPropagation();
+            if (window.__protoModes && window.__protoModes.deleteAnno) window.__protoModes.deleteAnno(item.id);
+          });
+        });
+        var locateBtn = row.querySelector("[data-anno-locate]");
+        if (locateBtn) locateBtn.addEventListener("click", function(ev) {
+          ev.stopPropagation();
+          if (window.__protoModes && window.__protoModes.startReposition) window.__protoModes.startReposition(item.id);
+        });
+        var resolveBtn = row.querySelector("[data-anno-resolve]");
+        if (resolveBtn) resolveBtn.addEventListener("click", function(ev) {
+          ev.stopPropagation();
+          if (window.__protoModes && window.__protoModes.toggleResolved) window.__protoModes.toggleResolved(item.id);
+        });
+        container.appendChild(row);
+      });
+    });
+  }
+
+  function getProtoPanelLabel(panelId) {
+    return "Viewing: full Landing page (all annotations)";
+  }
+
+  function updateProtoAnnotationPanel() {
+    var panel = getCurrentPanelId();
+    var hint = document.getElementById("protoAnnotationStepHint");
+    if (hint) hint.textContent = getProtoPanelLabel(panel);
+    // Single long landing: keep all groups undimmed / current
+    document.querySelectorAll(".proto-annotation-item").forEach(function(row) {
+      row.classList.toggle("is-current", true);
+      row.classList.toggle("is-dim", false);
+    });
+    scheduleProtoMarkerLayout();
+  }
+
+  function focusProtoAnnotation(id) {
+    var entry = protoMarkerMap[id];
+    if (!entry) return;
+    entry.anchor.scrollIntoView({ behavior: "smooth", block: "center" });
+    window.setTimeout(function() {
+      scheduleProtoMarkerLayout();
+      entry.marker.classList.remove("is-proto-flash");
+      void entry.marker.offsetWidth;
+      entry.marker.classList.add("is-proto-flash");
+    }, 360);
+    var row = document.querySelector('.proto-annotation-item[data-proto-id="' + id + '"]');
+    if (row) row.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  function initProtoAnnotations() {
+    mountProtoMarkers();
+    renderProtoAnnotationList();
+    updateProtoAnnotationPanel();
+  }
+
+  function renumberByRegion() {
+    var groupOrder = {};
+    PROTO_ANNOTATION_GROUPS.forEach(function(g, i) { groupOrder[g.key] = i; });
+    var sorted = PROTO_ANNOTATIONS.slice().sort(function(a, b) {
+      var ga = groupOrder[a.group] != null ? groupOrder[a.group] : 999;
+      var gb = groupOrder[b.group] != null ? groupOrder[b.group] : 999;
+      if (ga !== gb) return ga - gb;
+      return (Number(a.id) || 0) - (Number(b.id) || 0);
+    });
+    PROTO_ANNOTATIONS.splice(0, PROTO_ANNOTATIONS.length);
+    sorted.forEach(function(item, idx) {
+      item.id = idx + 1;
+      if (!item.status) item.status = "open";
+      PROTO_ANNOTATIONS.push(item);
+    });
+    return PROTO_ANNOTATIONS;
+  }
+
+  window.__protoAnno = {
+    annotations: PROTO_ANNOTATIONS,
+    groups: PROTO_ANNOTATION_GROUPS,
+    originals: PROTO_ANNOTATIONS.map(function(a) {
+      return { id: a.id, group: a.group, anchor: a.anchor, pos: a.pos, ox: a.ox, oy: a.oy, status: a.status || "open", title: a.title, desc: a.desc };
+    }),
+    render: renderProtoAnnotationList,
+    update: updateProtoAnnotationPanel,
+    schedule: scheduleProtoMarkerLayout,
+    remount: function() {
+      var layer = document.getElementById("protoMarkerLayer");
+      if (layer) layer.innerHTML = "";
+      protoMarkerMap = {};
+      mountProtoMarkers();
+      renderProtoAnnotationList();
+      updateProtoAnnotationPanel();
+    },
+    renumber: function() {
+      renumberByRegion();
+      this.remount();
+    },
+    nextId: function() {
+      var max = 0;
+      PROTO_ANNOTATIONS.forEach(function(a) { if (a.id > max) max = a.id; });
+      return max + 1;
+    },
+    add: function(item) {
+      if (!item.status) item.status = "open";
+      PROTO_ANNOTATIONS.push(item);
+      renumberByRegion();
+      this.remount();
+    },
+    remove: function(id) {
+      for (var i = PROTO_ANNOTATIONS.length - 1; i >= 0; i--) {
+        if (PROTO_ANNOTATIONS[i].id === id) PROTO_ANNOTATIONS.splice(i, 1);
+      }
+      renumberByRegion();
+      this.remount();
+    }
+  };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initProtoAnnotations);
+  } else {
+    initProtoAnnotations();
+  }
+})();
+</script>
+
+<script>
+(function () {
+  "use strict";
+  var MODE_KEY = "pptcab:proto-mode";
+  var PAGE_KEY = "pptcab:page-edits:v2";
+  var ANNO_KEY = "pptcab:anno-edits:v2";
+  var PANEL_KEY = "pptcab:panel-collapsed";
+  var SEL = 'h1,h2,h3,h4,h5,h6,p,li,td,th,blockquote,figcaption,dt,dd,button,.signup,.sub,.eyebrow,.float-note,a.chip,[data-editable]';
+  var SKIP = "#protoModeBar,#protoModeBar *,#protoModeToast,#protoPlaceGhost,#protoAnnotationPanel,#protoAnnotationPanel *,#protoMarkerLayer,#protoProtoBanner,#protoPanelCollapse,#protoAddAnnoFab,#protoAddAnnoBtn,#protoAddAnnoDialog,#protoAddAnnoDialog *,script,style";
+  var currentMode = "preview";
+  var toastTimer;
+  var dirty = false;
+  var pendingPlace = null; /* { anchor, ox, oy } */
+  var pendingRepositionId = null;
+  var placeMoveHandler = null;
+  var placeClickHandler = null;
+  var placeKeyHandler = null;
+
+  function toast(msg) {
+    var t = document.getElementById("protoModeToast");
+    if (!t) return;
+    t.textContent = msg;
+    t.classList.add("is-show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.classList.remove("is-show"); }, 1800);
+  }
+
+  function pageEditables() {
+    var main = document.getElementById("protoMainScroll") || document.body;
+    return Array.prototype.filter.call(main.querySelectorAll(SEL), function (el) {
+      return !(el.closest && el.closest(SKIP));
+    });
+  }
+
+  function stampPage() {
+    pageEditables().forEach(function (el, i) {
+      el.setAttribute("data-mhe-id", String(i));
+    });
+  }
+
+  function savePage() {
+    var data = {};
+    pageEditables().forEach(function (el) {
+      var id = el.getAttribute("data-mhe-id");
+      if (id != null) data[id] = el.innerHTML;
+    });
+    try { localStorage.setItem(PAGE_KEY, JSON.stringify(data)); } catch (e) {}
+    setDirty(true);
+  }
+
+  function restorePage() {
+    var raw; try { raw = localStorage.getItem(PAGE_KEY); } catch (e) { return false; }
+    if (!raw) return false;
+    var data; try { data = JSON.parse(raw); } catch (e) { return false; }
+    pageEditables().forEach(function (el) {
+      var v = data[el.getAttribute("data-mhe-id")];
+      if (typeof v === "string") el.innerHTML = v;
+    });
+    return true;
+  }
+
+  function hasPageEdits() {
+    try { return !!localStorage.getItem(PAGE_KEY); } catch (e) { return false; }
+  }
+
+  function hasAnnoEdits() {
+    try { return !!localStorage.getItem(ANNO_KEY); } catch (e) { return false; }
+  }
+
+  function setDirty(flag) {
+    dirty = !!flag || hasPageEdits() || hasAnnoEdits();
+    var chip = document.getElementById("protoVersionChip");
+    var label = document.getElementById("protoVersionLabel");
+    if (chip) chip.classList.toggle("is-dirty", dirty);
+    if (label) label.textContent = dirty ? "Edited" : "Original";
+  }
+
+  function loadAnnoEdits() {
+    var raw; try { raw = localStorage.getItem(ANNO_KEY); } catch (e) { return; }
+    if (!raw || !window.__protoAnno) return;
+    var data; try { data = JSON.parse(raw); } catch (e) { return; }
+    if (Array.isArray(data.list)) {
+      // full list replacement (supports add/delete)
+      window.__protoAnno.annotations.splice(0, window.__protoAnno.annotations.length);
+      data.list.forEach(function (item) {
+        if (!item.status) item.status = "open";
+        window.__protoAnno.annotations.push(item);
+      });
+    } else if (data.patches) {
+      window.__protoAnno.annotations.forEach(function (item) {
+        var patch = data.patches[String(item.id)];
+        if (!patch) return;
+        if (typeof patch.title === "string") item.title = patch.title;
+        if (typeof patch.desc === "string") item.desc = patch.desc;
+        if (typeof patch.anchor === "string") item.anchor = patch.anchor;
+        if (patch.ox != null) item.ox = Number(patch.ox);
+        if (patch.oy != null) item.oy = Number(patch.oy);
+        if (typeof patch.status === "string") item.status = patch.status;
+      });
+    }
+    window.__protoAnno.annotations.forEach(function (item) {
+      if (!item.status) item.status = "open";
+    });
+  }
+
+  function saveAnnoEdits() {
+    if (!window.__protoAnno) return;
+    var list = window.__protoAnno.annotations.map(function (item) {
+      return {
+        id: item.id,
+        group: item.group,
+        anchor: item.anchor,
+        pos: item.pos,
+        ox: item.ox,
+        oy: item.oy,
+        status: item.status || "open",
+        title: item.title,
+        desc: item.desc
+      };
+    });
+    try { localStorage.setItem(ANNO_KEY, JSON.stringify({ list: list })); } catch (e) {}
+    setDirty(true);
+  }
+
+  function setPageEditable(on) {
+    pageEditables().forEach(function (el) {
+      if (on) {
+        el.contentEditable = "true";
+        el.classList.add("mhe-editing");
+      } else {
+        el.removeAttribute("contenteditable");
+        el.classList.remove("mhe-editing");
+      }
+    });
+  }
+
+  function setPanelCollapsed(collapsed) {
+    document.body.classList.toggle("proto-panel-collapsed", !!collapsed);
+    var btn = document.getElementById("protoPanelCollapse");
+    if (btn) {
+      btn.textContent = collapsed ? "Show notes" : "Hide notes";
+      btn.setAttribute("aria-expanded", collapsed ? "false" : "true");
+    }
+    try { localStorage.setItem(PANEL_KEY, collapsed ? "1" : "0"); } catch (e) {}
+    if (window.__protoAnno) window.__protoAnno.schedule();
+  }
+
+  function applyMode(mode, opts) {
+    opts = opts || {};
+    if (mode !== "preview" && mode !== "edit" && mode !== "annotate") mode = "preview";
+    currentMode = mode;
+    if (mode !== "edit") {
+      cancelPlaceMode();
+      pendingPlace = null;
+      pendingRepositionId = null;
+      closeAddDialog(true);
+    }
+    document.body.classList.remove("proto-mode-preview", "proto-mode-edit", "proto-mode-annotate");
+    document.body.classList.add("proto-mode-" + mode);
+
+    Array.prototype.forEach.call(document.querySelectorAll("#protoModeSeg button"), function (btn) {
+      var on = btn.getAttribute("data-mode") === mode;
+      btn.classList.toggle("is-active", on);
+      btn.setAttribute("aria-selected", on ? "true" : "false");
+    });
+
+    setPageEditable(mode === "edit");
+
+    var panel = document.getElementById("protoAnnotationPanel");
+    var layer = document.getElementById("protoMarkerLayer");
+    var collapseBtn = document.getElementById("protoPanelCollapse");
+
+    if (mode === "preview") {
+      if (panel) panel.setAttribute("hidden", "");
+      if (layer) layer.style.display = "none";
+      if (collapseBtn) collapseBtn.style.display = "none";
+      document.body.classList.remove("proto-panel-collapsed");
+    } else {
+      if (panel) panel.removeAttribute("hidden");
+      var collapsed = false;
+      try { collapsed = localStorage.getItem(PANEL_KEY) === "1"; } catch (e) {}
+      if (window.matchMedia && window.matchMedia("(max-width: 980px)").matches) {
+        setPanelCollapsed(collapsed);
+        if (collapseBtn) collapseBtn.style.display = "";
+      } else {
+        document.body.classList.remove("proto-panel-collapsed");
+        if (collapseBtn) collapseBtn.style.display = "none";
+        if (layer) layer.style.display = "";
+      }
+      if (window.__protoAnno) {
+        window.__protoAnno.render();
+        window.__protoAnno.update();
+        window.__protoAnno.schedule();
+      }
+    }
+
+    try { localStorage.setItem(MODE_KEY, mode); } catch (e) {}
+    if (!opts.silent) {
+      var labels = {
+        preview: "Preview",
+        edit: "Edit: change page copy and annotations",
+        annotate: "Annotate: read-only review"
+      };
+      toast(labels[mode] || mode);
+    }
+    setTimeout(function () {
+      if (window.__protoAnno) window.__protoAnno.schedule();
+      window.dispatchEvent(new Event("resize"));
+    }, 40);
+  }
+
+  function stripChrome(clone, mode) {
+    var removeIds = ["protoModeBar", "protoModeToast", "protoPlaceGhost", "protoProtoBanner", "protoPanelCollapse", "protoAddAnnoDialog", "protoAddAnnoFab"];
+    removeIds.forEach(function (id) {
+      var el = clone.querySelector("#" + id);
+      if (el) el.remove();
+    });
+    Array.prototype.forEach.call(clone.querySelectorAll("[contenteditable]"), function (el) {
+      el.removeAttribute("contenteditable");
+      el.classList.remove("mhe-editing");
+    });
+    Array.prototype.forEach.call(clone.querySelectorAll(".proto-anno-del,.proto-anno-actions,.proto-anno-meta,.proto-anno-meta-toggle,.proto-anno-row-actions,.proto-anno-status-note"), function (el) {
+      el.remove();
+    });
+    var body = clone.querySelector("body");
+    if (body) {
+      body.classList.remove("proto-mode-preview", "proto-mode-edit", "proto-mode-annotate", "proto-panel-collapsed", "proto-placing");
+      body.classList.add("proto-mode-" + mode);
+      body.removeAttribute("hidden");
+    }
+    if (mode === "preview") {
+      var panel = clone.querySelector("#protoAnnotationPanel");
+      if (panel) panel.remove();
+      var layer = clone.querySelector("#protoMarkerLayer");
+      if (layer) layer.remove();
+      var shell = clone.querySelector("#protoAppShell");
+      var main = clone.querySelector("#protoMainScroll");
+      if (shell && main) {
+        // unwrap shell: keep main content only
+        var parent = shell.parentNode;
+        while (main.firstChild) parent.insertBefore(main.firstChild, shell);
+        shell.remove();
+      }
+      // remove annotation-related styles? keep harmless
+    }
+  }
+
+  function attrs(el) {
+    return Array.prototype.map.call(el.attributes, function (a) {
+      return " " + a.name + '="' + String(a.value).replace(/"/g, "&quot;") + '"';
+    }).join("");
+  }
+
+  function exportHTML() {
+    var wasEdit = currentMode === "edit";
+    if (wasEdit) setPageEditable(false);
+    // sync latest anno text from DOM if editing
+    if (wasEdit) flushAnnoFieldsFromDom();
+
+    var exportMode = currentMode; // preview | edit | annotate
+    var clone = document.documentElement.cloneNode(true);
+    stripChrome(clone, exportMode === "edit" ? "annotate" : exportMode);
+    // edit export keeps panel+markers with current copy
+    if (exportMode === "edit") {
+      clone.querySelector("body").classList.add("proto-mode-annotate");
+      clone.querySelector("body").classList.remove("proto-mode-edit");
+    }
+
+    var htmlOut = "<!doctype html>\n<html" + attrs(clone) + ">" + clone.innerHTML + "</html>";
+    var suffix = { preview: "preview", annotate: "annotated", edit: "edited-annotated" }[exportMode] || "export";
+    var name = "landing-modes." + suffix + ".html";
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([htmlOut], { type: "text/html;charset=utf-8" }));
+    a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+    if (wasEdit) setPageEditable(true);
+    toast("Exported " + name);
+  }
+
+  function flushAnnoFieldsFromDom() {
+    if (!window.__protoAnno) return;
+    document.querySelectorAll("[data-anno-field][data-anno-id]").forEach(function (el) {
+      var id = el.getAttribute("data-anno-id");
+      var field = el.getAttribute("data-anno-field");
+      var item = window.__protoAnno.annotations.find(function (x) { return String(x.id) === String(id); });
+      if (!item) return;
+      if (field === "anchor") item.anchor = (el.value || "body").trim() || "body";
+      else if (field === "ox" || field === "oy") {
+        var n = parseFloat(el.value);
+        if (el.value === "" || isNaN(n)) delete item[field];
+        else item[field] = n;
+      } else item[field] = el.textContent || "";
+    });
+    saveAnnoEdits();
+  }
+
+  function resetContent() {
+    if (!confirm("Reset page copy and annotations to the original? (keeps current mode)")) return;
+    try {
+      localStorage.removeItem(PAGE_KEY);
+      localStorage.removeItem(ANNO_KEY);
+    } catch (e) {}
+    location.reload();
+  }
+
+  function clearAllStorage() {
+    if (!confirm("Clear all local cache for this page (mode / copy / annotations / panel state)?")) return;
+    try {
+      localStorage.removeItem(PAGE_KEY);
+      localStorage.removeItem(ANNO_KEY);
+      localStorage.removeItem(MODE_KEY);
+      localStorage.removeItem(PANEL_KEY);
+    } catch (e) {}
+    location.reload();
+  }
+
+  function onAnnoInput(e) {
+    if (currentMode !== "edit") return;
+    var t = e.target;
+    if (!t || !t.getAttribute) return;
+    var field = t.getAttribute("data-anno-field");
+    var id = t.getAttribute("data-anno-id");
+    if (!field || !id || !window.__protoAnno) return;
+    var item = window.__protoAnno.annotations.find(function (x) { return String(x.id) === String(id); });
+    if (!item) return;
+    if (field === "anchor") {
+      item.anchor = (t.value || "body").trim() || "body";
+      saveAnnoEdits();
+      window.__protoAnno.remount();
+      return;
+    }
+    if (field === "ox" || field === "oy") {
+      var n = parseFloat(t.value);
+      if (t.value === "" || isNaN(n)) delete item[field];
+      else item[field] = n;
+      saveAnnoEdits();
+      window.__protoAnno.schedule();
+      return;
+    }
+    item[field] = t.textContent || "";
+    saveAnnoEdits();
+  }
+
+  function isChromeTarget(el) {
+    if (!el || !el.closest) return true;
+    return !!(el.closest("#protoModeBar") || el.closest("#protoAnnotationPanel") ||
+      el.closest("#protoMarkerLayer") || el.closest("#protoProtoBanner") ||
+      el.closest("#protoPanelCollapse") || el.closest("#protoAddAnnoFab") ||
+      el.closest("#protoAddAnnoDialog") || el.closest("#protoModeToast") ||
+      el.closest("#protoPlaceGhost") || el.closest(".proto-marker"));
+  }
+
+  function cssEscape(s) {
+    if (window.CSS && CSS.escape) return CSS.escape(s);
+    return String(s).replace(/[^a-zA-Z0-9_-]/g, "\\$&");
+  }
+
+  function buildDurableSelector(el) {
+    if (!el || el.nodeType !== 1) return "body";
+    if (el.id) return "#" + cssEscape(el.id);
+    var anno = el.getAttribute && el.getAttribute("data-anno");
+    if (anno) return '[data-anno="' + anno.replace(/"/g, '\\"') + '"]';
+    var mark = el.getAttribute && el.getAttribute("data-proto-mark");
+    if (mark) return '[data-proto-mark="' + mark.replace(/"/g, '\\"') + '"]';
+    // short path up to 4 levels
+    var parts = [];
+    var cur = el;
+    var depth = 0;
+    while (cur && cur.nodeType === 1 && depth < 4 && cur !== document.body && cur.id !== "protoMainScroll") {
+      if (cur.id) {
+        parts.unshift("#" + cssEscape(cur.id));
+        break;
+      }
+      var tag = cur.tagName.toLowerCase();
+      var parent = cur.parentElement;
+      if (parent) {
+        var same = Array.prototype.filter.call(parent.children, function (c) { return c.tagName === cur.tagName; });
+        if (same.length > 1) {
+          var idx = Array.prototype.indexOf.call(same, cur) + 1;
+          tag += ":nth-of-type(" + idx + ")";
+        }
+      }
+      parts.unshift(tag);
+      cur = parent;
+      depth++;
+    }
+    return parts.length ? parts.join(" > ") : "body";
+  }
+
+  function resolvePlaceTarget(el) {
+    if (!el || el.nodeType !== 1) return null;
+    var main = document.getElementById("protoMainScroll");
+    if (main && !main.contains(el)) return null;
+    var preferred = el.closest("[id],[data-anno],[data-proto-mark],h1,h2,h3,h4,h5,h6,button,section,a.chip,.signup,.logo,.card,.way,.scene-card,.acc-item,.price-card,.hero,.nav");
+    if (preferred && main && main.contains(preferred)) return preferred;
+    return el;
+  }
+
+  function cancelPlaceMode() {
+    document.body.classList.remove("proto-placing");
+    var ghost = document.getElementById("protoPlaceGhost");
+    if (ghost) ghost.style.display = "";
+    if (placeMoveHandler) {
+      document.removeEventListener("pointermove", placeMoveHandler, true);
+      placeMoveHandler = null;
+    }
+    if (placeClickHandler) {
+      document.removeEventListener("click", placeClickHandler, true);
+      placeClickHandler = null;
+    }
+    if (placeKeyHandler) {
+      document.removeEventListener("keydown", placeKeyHandler, true);
+      placeKeyHandler = null;
+    }
+  }
+
+  function exitPlaceOnly() {
+    cancelPlaceMode();
+    pendingPlace = null;
+    pendingRepositionId = null;
+  }
+
+  function startPlaceMode(opts) {
+    opts = opts || {};
+    if (currentMode !== "edit") applyMode("edit", { silent: true });
+    cancelPlaceMode();
+    pendingRepositionId = opts.repositionId != null ? opts.repositionId : null;
+    pendingPlace = null;
+    document.body.classList.add("proto-placing");
+    toast(pendingRepositionId != null ? "Click the page to reposition (Esc to cancel)" : "Click where to place the pin (Esc to cancel)");
+
+    placeMoveHandler = function (e) {
+      var ghost = document.getElementById("protoPlaceGhost");
+      if (!ghost) return;
+      ghost.style.left = e.clientX + "px";
+      ghost.style.top = e.clientY + "px";
+    };
+    document.addEventListener("pointermove", placeMoveHandler, true);
+
+    placeClickHandler = function (e) {
+      if (isChromeTarget(e.target)) return;
+      var main = document.getElementById("protoMainScroll");
+      if (!main || !main.contains(e.target)) return;
+      e.preventDefault();
+      e.stopPropagation();
+      var target = resolvePlaceTarget(e.target);
+      if (!target) { toast("Click inside the page content"); return; }
+      var rect = target.getBoundingClientRect();
+      var ox = Math.round((e.clientX - rect.left) * 10) / 10;
+      var oy = Math.round((e.clientY - rect.top) * 10) / 10;
+      var anchor = buildDurableSelector(target);
+      pendingPlace = { anchor: anchor, ox: ox, oy: oy };
+      cancelPlaceMode();
+      if (pendingRepositionId != null) {
+        var item = window.__protoAnno.annotations.find(function (x) { return String(x.id) === String(pendingRepositionId); });
+        if (item) {
+          item.anchor = anchor;
+          item.ox = ox;
+          item.oy = oy;
+          saveAnnoEdits();
+          window.__protoAnno.remount();
+          toast("Updated placement #" + item.id);
+        }
+        pendingPlace = null;
+        pendingRepositionId = null;
+        return;
+      }
+      openAddDialog();
+    };
+    document.addEventListener("click", placeClickHandler, true);
+
+    placeKeyHandler = function (e) {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        exitPlaceOnly();
+        closeAddDialog(true);
+        toast("Placement cancelled");
+      }
+    };
+    document.addEventListener("keydown", placeKeyHandler, true);
+  }
+
+  function startReposition(id) {
+    startPlaceMode({ repositionId: id });
+  }
+
+  function openAddDialog() {
+    var dlg = document.getElementById("protoAddAnnoDialog");
+    var sel = document.getElementById("protoAddGroup");
+    sel.innerHTML = "";
+    (window.__protoAnno.groups || []).forEach(function (g) {
+      var opt = document.createElement("option");
+      opt.value = g.key; opt.textContent = g.label;
+      sel.appendChild(opt);
+    });
+    document.getElementById("protoAddTitle").value = "";
+    document.getElementById("protoAddDesc").value = "";
+    var hint = document.getElementById("protoAddPlaceHint");
+    var anchorInput = document.getElementById("protoAddAnchor");
+    if (pendingPlace) {
+      anchorInput.value = pendingPlace.anchor;
+      if (hint) {
+        hint.innerHTML = "Pinned · <code>" + String(pendingPlace.anchor).replace(/</g, "&lt;") + "</code> · offset " + pendingPlace.ox + ", " + pendingPlace.oy;
+        hint.classList.add("is-show");
+      }
+    } else {
+      anchorInput.value = "";
+      if (hint) { hint.textContent = ""; hint.classList.remove("is-show"); }
+    }
+    // guess group from anchor section
+    var guess = "global";
+    var a = (pendingPlace && pendingPlace.anchor) || "";
+    if (/hero|composer|prompt|#go|#kinds|slide-preview/i.test(a)) guess = "hero";
+    else if (/way-|ways/i.test(a)) guess = "ways";
+    else if (/template/i.test(a)) guess = "templates";
+    else if (/scene/i.test(a)) guess = "scenes";
+    else if (/acc|faq/i.test(a)) guess = "faq";
+    else if (/pric|smart/i.test(a)) guess = "pricing";
+    else if (/footer|logo|signup|header/i.test(a)) guess = "global";
+    sel.value = guess;
+    dlg.classList.add("is-open");
+    dlg.setAttribute("aria-hidden", "false");
+    setTimeout(function () {
+      var t = document.getElementById("protoAddTitle");
+      if (t) t.focus();
+    }, 30);
+  }
+
+  function closeAddDialog(silent) {
+    var dlg = document.getElementById("protoAddAnnoDialog");
+    dlg.classList.remove("is-open");
+    dlg.setAttribute("aria-hidden", "true");
+    var hint = document.getElementById("protoAddPlaceHint");
+    if (hint) { hint.textContent = ""; hint.classList.remove("is-show"); }
+    if (!silent) {
+      pendingPlace = null;
+      pendingRepositionId = null;
+    }
+  }
+
+  function confirmAddAnno() {
+    var title = (document.getElementById("protoAddTitle").value || "").trim();
+    var desc = (document.getElementById("protoAddDesc").value || "").trim();
+    var group = document.getElementById("protoAddGroup").value || "global";
+    if (!pendingPlace) { toast("Place a pin on the page first"); closeAddDialog(); startPlaceMode(); return; }
+    if (!title) { toast("Please enter a title"); return; }
+    if (!desc) { toast("Please enter a description"); return; }
+    var anchor = pendingPlace.anchor || "body";
+    var el = null;
+    try { el = document.querySelector(anchor); } catch (e) { toast("Invalid selector — place again"); return; }
+    if (!el) { toast("Anchor not found — place again"); return; }
+    var item = {
+      id: window.__protoAnno.nextId(),
+      group: group,
+      anchor: anchor,
+      ox: pendingPlace.ox,
+      oy: pendingPlace.oy,
+      status: "open",
+      title: title,
+      desc: desc
+    };
+    pendingPlace = null;
+    window.__protoAnno.add(item);
+    saveAnnoEdits();
+    closeAddDialog(true);
+    // find renumbered id by matching title+anchor roughly — use last matching open item
+    var shown = item.id;
+    toast("Added annotation #" + shown);
+    applyMode("edit", { silent: true });
+  }
+
+  function deleteAnno(id) {
+    if (!confirm("Delete annotation #" + id + "?")) return;
+    window.__protoAnno.remove(Number(id));
+    saveAnnoEdits();
+    toast("Deleted and renumbered");
+  }
+
+  function toggleResolved(id) {
+    if (!window.__protoAnno) return;
+    var item = window.__protoAnno.annotations.find(function (x) { return String(x.id) === String(id); });
+    if (!item) return;
+    item.status = item.status === "resolved" ? "open" : "resolved";
+    saveAnnoEdits();
+    window.__protoAnno.remount();
+    toast(item.status === "resolved" ? "Marked resolved #" + item.id : "Reopened #" + item.id);
+  }
+
+  function init() {
+    stampPage();
+    function boot() {
+      loadAnnoEdits();
+      if (window.__protoAnno) {
+        if (window.__protoAnno.renumber) window.__protoAnno.renumber();
+        else window.__protoAnno.remount();
+      }
+      var restored = restorePage();
+      stampPage();
+      setDirty(restored || hasAnnoEdits());
+
+      var saved; try { saved = localStorage.getItem(MODE_KEY); } catch (e) {}
+      applyMode(saved || "preview", { silent: true });
+
+      document.getElementById("protoModeSeg").addEventListener("click", function (e) {
+        var btn = e.target.closest("button[data-mode]");
+        if (!btn) return;
+        applyMode(btn.getAttribute("data-mode"));
+      });
+      document.getElementById("protoExportBtn").addEventListener("click", exportHTML);
+      document.getElementById("protoResetBtn").addEventListener("click", resetContent);
+      document.getElementById("protoClearStorageBtn").addEventListener("click", clearAllStorage);
+      document.getElementById("protoPanelCollapse").addEventListener("click", function () {
+        var now = document.body.classList.contains("proto-panel-collapsed");
+        setPanelCollapsed(!now);
+      });
+      function bindAddAnno(el) {
+        if (el) el.addEventListener("click", function () { startPlaceMode(); });
+      }
+      bindAddAnno(document.getElementById("protoAddAnnoBtn"));
+      bindAddAnno(document.getElementById("protoAddAnnoFab"));
+      document.getElementById("protoAddCancel").addEventListener("click", function () {
+        closeAddDialog();
+        exitPlaceOnly();
+        toast("Cancelled");
+      });
+      document.getElementById("protoAddConfirm").addEventListener("click", confirmAddAnno);
+      document.getElementById("protoAddAnnoDialog").addEventListener("click", function (e) {
+        if (e.target.id === "protoAddAnnoDialog") {
+          closeAddDialog();
+          exitPlaceOnly();
+        }
+      });
+
+      document.addEventListener("input", function (e) {
+        if (currentMode !== "edit") return;
+        if (e.target && e.target.hasAttribute && e.target.hasAttribute("data-mhe-id")) savePage();
+        onAnnoInput(e);
+      });
+      document.addEventListener("blur", function (e) {
+        if (currentMode === "edit" && e.target && e.target.getAttribute && e.target.getAttribute("data-anno-field")) {
+          onAnnoInput(e);
+        }
+      }, true);
+
+      ["keydown", "keypress", "keyup"].forEach(function (type) {
+        document.addEventListener(type, function (e) {
+          if (e.target && e.target.isContentEditable) e.stopPropagation();
+        }, true);
+      });
+      window.addEventListener("beforeunload", function () {
+        if (currentMode === "edit") { savePage(); saveAnnoEdits(); }
+      });
+      window.addEventListener("resize", function () {
+        if (currentMode === "preview") return;
+        var collapseBtn = document.getElementById("protoPanelCollapse");
+        if (window.matchMedia("(max-width: 980px)").matches) {
+          if (collapseBtn) collapseBtn.style.display = "";
+        } else {
+          document.body.classList.remove("proto-panel-collapsed");
+          if (collapseBtn) collapseBtn.style.display = "none";
+          var layer = document.getElementById("protoMarkerLayer");
+          if (layer) layer.style.display = "";
+        }
+      });
+    }
+
+    window.__protoModes = {
+      deleteAnno: deleteAnno,
+      toggleResolved: toggleResolved,
+      startReposition: startReposition,
+      startPlaceMode: startPlaceMode,
+      exportHTML: exportHTML,
+      applyMode: applyMode
+    };
+
+    if (window.__protoAnno) boot();
+    else setTimeout(boot, 0);
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+  else init();
+})();
+</script>
+
+</body>
+</html>
